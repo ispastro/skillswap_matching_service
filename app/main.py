@@ -58,3 +58,14 @@ def test_similarity():
         "react_chef_similarity": round(float(similarity_react_chef), 2),
         "message":"Similarity calculated successfully"
     }
+@app.get("/setup-pgvector")
+def setup_pgvector():
+        from sqlalchemy import text
+        from app.models.database import engine
+        try:
+            with engine.connect()  as connection:
+                connection.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+                connection.commit()
+                return {"status": "pgvector setup successful", "message": "pgvector extension is set up successfully."}
+        except  Exception as e:
+            return  {"status":"error", "message": str(e)}    
