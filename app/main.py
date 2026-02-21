@@ -1,8 +1,12 @@
 from fastapi  import FastAPI
 from app.config import settings
  
+from app.api.routes import router
+
 
 app = FastAPI(title = settings.app_name)
+app.include_router(router)
+
 @app.get("/")
 def root():
     return { "Message": f"Welcome to the {settings.app_name}!"}
