@@ -182,3 +182,32 @@ def check_user_columns():
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@app.get("/test-alice-bob-match")
+def test_alice_bob_match():
+    from app.services.matching_service import matching_service
+    
+    # Alice's skills
+    alice_wants = ["Python", "Django", "Machine Learning"]
+    alice_has = ["JavaScript", "React", "TypeScript", "CSS"]
+    
+    # Bob's skills
+    bob_has = ["Python", "Django", "PostgreSQL", "Docker"]
+    bob_wants = ["JavaScript", "React", "AWS"]
+    
+    # Calculate match from Alice's perspective
+    result = matching_service.calculate_match_score(
+        my_skills_want=alice_wants,
+        my_skills_have=alice_has,
+        their_skills_have=bob_has,
+        their_skills_want=bob_wants
+    )
+    
+    return {
+        "alice_wants": alice_wants,
+        "alice_has": alice_has,
+        "bob_has": bob_has,
+        "bob_wants": bob_wants,
+        "match_result": result
+    }
