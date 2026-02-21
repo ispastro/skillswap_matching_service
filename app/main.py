@@ -68,4 +68,117 @@ def setup_pgvector():
                 connection.commit()
                 return {"status": "pgvector setup successful", "message": "pgvector extension is set up successfully."}
         except  Exception as e:
-            return  {"status":"error", "message": str(e)}    
+            return  {"status":"error", "message": str(e)} 
+
+
+@app.get("/check_tables")
+def check_tables():
+    from sqlalchemy import text, inspect
+    from app.models.database import engine
+    try:
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
+        if "SkillEmbedding" in tables:
+            columns = inspector.get_columns("SkillEmbedding")
+            column_info = [{"name": col["name"], "type": str(col["type"])} for col in columns]
+            return {
+                "table_exists": True,
+                "columns": column_info
+            }
+        else:
+            return {
+                "table_exists": False,
+                "tables": tables,
+                "message": "SkillEmbedding table not found"
+            }
+    except Exception as e:
+        return {
+            "table_exists": False,
+            "status": "error",
+            "message": str(e)
+        }
+
+
+@app.get("/fix-embedding-column")
+def fix_embedding_column():
+    from sqlalchemy import text
+    from app.models.database import engine
+    try:
+        with engine.connect()  as connection:
+            connection.execute(text('ALTER TABLE "SkillEmbedding" DROP COLUMN IF EXISTS embedding'))  
+            connection.execute(text('ALTER TABLE "SkillEmbedding" ADD COLUMN embedding vector(384)'))
+            connection.commit()
+            return {"status": "success", "message": "Embedding column fixed!  it's now vector(384)"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+@app.get("/check-real-column-type")
+def check_real_column_type():
+    from sqlalchemy import text
+    from app.models.database import engine
+    
+    try:
+        with engine.connect() as connection:
+            result = connection.execute(text("""
+                SELECT column_name, data_type, udt_name
+                FROM information_schema.columns
+                WHERE table_name = 'SkillEmbedding'
+                AND column_name = 'embedding'
+            """))
+            
+            row = result.fetchone()
+            if row:
+                return {
+                    "column_name": row[0],
+                    "data_type": row[1],
+                    "udt_name": row[2],
+                    "message": "If udt_name is 'vector', it's correct!"
+                }
+            else:
+                return {"status": "error", "message": "Column not found"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+@app.get("/test-read-users")
+def test_read_users():
+    from app.models.database import SessionLocal
+    from app.models.schemas import User
+    
+    db = SessionLocal()
+    try:
+        # Get first 3 users
+        users = db.query(User).limit(3).all()
+        
+        result = []
+        for user in users:
+            result.append({
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
+                "skillsHave": user.skillsHave,
+                "skillsWant": user.skillsWant
+            })
+        
+        return {
+            "count": len(result),
+            "users": result
+        }
+    finally:
+        db.close()
+
+
+@app.get("/check-user-columns")
+def check_user_columns():
+    from sqlalchemy import text, inspect
+    from app.models.database import engine
+    
+    try:
+        inspector = inspect(engine)
+        columns = inspector.get_columns("User")
+        column_names = [col["name"] for col in columns]
+        
+        return {
+            "table": "User",
+            "columns": column_names
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
