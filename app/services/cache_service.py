@@ -8,8 +8,8 @@ class CacheService:
     def __init__(self):
         if settings.redis_upstash_rest_url and settings.redis_upstash_rest_token:
             self.redis = Redis(
-                rest_url=settings.redis_upstash_rest_url,
-                rest_token=settings.redis_upstash_rest_token
+                 url=settings.redis_upstash_rest_url,
+                 token=settings.redis_upstash_rest_token
             )
             self.enabled =True
         else:
