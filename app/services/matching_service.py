@@ -15,11 +15,9 @@ class MatchingService:
     ) -> Dict:
         """Calculate match score with exact + semantic matching"""
         
-        # Stage 1: Exact matches
         exact_i_get = self._find_exact_matches(my_skills_want, their_skills_have)
         exact_i_give = self._find_exact_matches(their_skills_want, my_skills_have)
         
-        # Stage 2: Semantic matches (for skills not exactly matched)
         remaining_i_want = [s for s in my_skills_want if s not in exact_i_get]
         remaining_they_have = [s for s in their_skills_have if s.lower() not in [x.lower() for x in exact_i_get]]
         
@@ -30,11 +28,9 @@ class MatchingService:
         
         semantic_i_give = self._find_semantic_matches(remaining_they_want, remaining_i_have)
         
-        # Combine exact + semantic
         all_i_get = exact_i_get + [m["skill"] for m in semantic_i_get]
         all_i_give = exact_i_give + [m["skill"] for m in semantic_i_give]
         
-        # Calculate score
         score = self._calculate_score(
             len(all_i_get),
             len(all_i_give),
@@ -77,7 +73,6 @@ class MatchingService:
         want_embeddings = embedding_service.generate_embeddings_batch(want)
         have_embeddings = embedding_service.generate_embeddings_batch(have)
         
-        # Find best match for each wanted skill
         for i, want_skill in enumerate(want):
             best_match = None
             best_similarity = 0
