@@ -6,7 +6,7 @@ from app.config import settings
 async_database_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
 
 # Create async engine
-async_engine = create_async_engine(async_database_url, echo=False)
+async_engine = create_async_engine(async_database_url, echo=False, pool_pre_ping=True, pool_size=10, max_overflow=20)
 
 # Create async session factory
 AsyncSessionLocal = async_sessionmaker(
@@ -18,4 +18,10 @@ AsyncSessionLocal = async_sessionmaker(
 # Dependency to get async database session
 async def get_async_db():
     async with AsyncSessionLocal() as session:
-        yield session
+        try:
+         yield session
+         await session.commit()
+        except Exception as e:
+            await session.rollback()
+            print(f"Database error: {e}")
+            raise
