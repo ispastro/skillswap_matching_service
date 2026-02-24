@@ -217,6 +217,9 @@ MATCHING_SERVICE_URL=https://your-matching-service.onrender.com
 
 See [DEPLOY.md](DEPLOY.md) for Render deployment instructions.
 
+### ⚠️ Render Free Tier: Preventing Sleep
+Render free tier spins down after 15 minutes. See [KEEP_ALIVE.md](KEEP_ALIVE.md) for solutions to keep your service awake 24/7 (completely free).
+
 ## 🧪 Testing
 
 ```bash
