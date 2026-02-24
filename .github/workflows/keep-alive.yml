@@ -1,4 +1,4 @@
-name: Keep Render Service Awake
+name: Keep Render fastapi skillSwap Service Awake
 
 on:
   schedule:
