@@ -2,7 +2,9 @@ from upstash_redis  import Redis
 from app.config import settings
 import json
 from typing import Optional, Any
+import logging
 
+logger = logging.getLogger(__name__)
 
 class CacheService:
     def __init__(self):
@@ -12,10 +14,11 @@ class CacheService:
                  token=settings.redis_upstash_rest_token
             )
             self.enabled =True
+            logger.info("Redis cache enabled")
         else:
             self.redis = None
             self.enabled = False
-            print("Redis not configured properly")    
+            logger.warning("Redis not configured - caching disabled")    
     def get(self, key:str) ->Optional[Any]:
         if not self.enabled:
             return None
@@ -25,7 +28,7 @@ class CacheService:
                 return json.loads(value)
             return None
         except Exception as e:
-            print(f" cache get error: {e}")
+            logger.error(f"Cache get error for key {key}: {e}")
             return None
         
 
@@ -36,7 +39,7 @@ class CacheService:
         try:
             self.redis.set(key, json.dumps(value), ex=ttl)  
         except Exception as e:
-            print(f"cache set error: {e}")
+            logger.error(f"Cache set error for key {key}: {e}")
 
 
     def delete(self , key:str):
@@ -45,7 +48,7 @@ class CacheService:
         try:
             self.redis.delete(key)
         except Exception as e:
-            print(f"cache delete error: {e}")        
+            logger.error(f"Cache delete error for key {key}: {e}")        
 
 
 cache_service = CacheService()

@@ -1,23 +1,81 @@
 from fastapi  import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
- 
+from app.api.models import HealthResponse
 from app.api.routes import router
+from app.utils.logging_config import setup_logging
+import logging
 
+# Setup logging
+setup_logging()
+logger = logging.getLogger(__name__)
 
 app = FastAPI(title = settings.app_name)
+
+logger.info(f"Starting {settings.app_name}")
+
+# CORS Configuration - allows frontend to call this API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # TODO: Restrict to specific domains in production
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 app.include_router(router)
 
 @app.get("/")
 def root():
     return { "Message": f"Welcome to the {settings.app_name}!"}
 
-@app.get("/health")    
+@app.get("/health", response_model=HealthResponse)
 def health():
-    return {
+    """Comprehensive health check with dependency status"""
+    from sqlalchemy import text
+    from app.models.database import engine
+    from app.services.cache_service import cache_service
+    from app.services.embedding_service import embedding_service
+    
+    health_status = {
         "status": "healthy",
-        "service name": settings.app_name,
-        "port": settings.port
-        }
+        "service_name": settings.app_name,
+        "port": settings.port,
+        "database_connected": False,
+        "redis_connected": False,
+        "model_loaded": False
+    }
+    
+    # Check database
+    try:
+        with engine.connect() as connection:
+            connection.execute(text("SELECT 1"))
+            health_status["database_connected"] = True
+    except Exception as e:
+        print(f"Database health check failed: {e}")
+    
+    # Check Redis
+    try:
+        if cache_service.enabled:
+            cache_service.set("health_check", "ok", ttl=10)
+            result = cache_service.get("health_check")
+            if result == "ok":
+                health_status["redis_connected"] = True
+    except Exception as e:
+        print(f"Redis health check failed: {e}")
+    
+    # Check AI model
+    try:
+        if embedding_service.model is not None:
+            health_status["model_loaded"] = True
+    except Exception as e:
+        print(f"Model health check failed: {e}")
+    
+    # Overall status
+    if not all([health_status["database_connected"], health_status["model_loaded"]]):
+        health_status["status"] = "degraded"
+    
+    return health_status
 
 
 @app.get("/db-test")

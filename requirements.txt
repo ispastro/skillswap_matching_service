@@ -1,21 +1,21 @@
 # Web Framework
-fastapi==0.115.0
-uvicorn[standard]==0.32.0
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
 
 # AI/ML - Sentence Transformers  
-sentence-transformers==3.3.0
-numpy==2.1.0
+sentence-transformers>=3.3.0
+numpy>=2.1.0
 
 # Database
-sqlalchemy==2.0.36
-psycopg2-binary==2.9.10
-psycopg[binary]==3.2.3
-pgvector==0.3.5
+sqlalchemy>=2.0.36
+psycopg2-binary>=2.9.10
+psycopg[binary]>=3.2.3
+pgvector>=0.3.5
 
 # Configuration & Validation
-pydantic==2.10.0
-pydantic-settings==2.6.0
-python-dotenv==1.0.1
+pydantic>=2.10.0
+pydantic-settings>=2.6.0
+python-dotenv>=1.0.1
 
 # Caching
-upstash-redis==0.15.0
+upstash-redis>=0.15.0
