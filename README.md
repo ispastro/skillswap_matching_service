@@ -39,7 +39,7 @@ The Node.js backend calls this service via HTTP:
 ```javascript
 // Example: Node.js calling this service
 const matches = await axios.post(
-  'http://matching-service:8001/api/matches/user123',
+  'https://skillswap-matching-service.onrender.com/api/matches/user123',
   { limit: 10 }
 );
 ```
@@ -191,7 +191,7 @@ This service is designed to be called by your main Node.js/Express backend:
 ```javascript
 const axios = require('axios');
 
-const MATCHING_SERVICE_URL = process.env.MATCHING_SERVICE_URL || 'http://localhost:8001';
+const MATCHING_SERVICE_URL = process.env.MATCHING_SERVICE_URL || 'https://skillswap-matching-service.onrender.com';
 
 // Get matches for a user
 app.get('/api/users/:userId/matches', async (req, res) => {
@@ -210,7 +210,7 @@ app.get('/api/users/:userId/matches', async (req, res) => {
 
 ### Environment Variables (Node.js):
 ```env
-MATCHING_SERVICE_URL=https://your-matching-service.onrender.com
+MATCHING_SERVICE_URL=https://skillswap-matching-service.onrender.com
 ```
 
 ## 🚀 Deployment

@@ -12,5 +12,5 @@ jobs:
     steps:
       - name: Ping Health Endpoint
         run: |
-          curl -f https://your-service.onrender.com/health || echo "Service might be sleeping"
+          curl -f https://skillswap-matching-service.onrender.com/health || echo "Service might be sleeping"
           echo "Keep-alive ping sent at $(date)"

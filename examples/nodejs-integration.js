@@ -3,7 +3,7 @@
 
 const axios = require('axios');
 
-const MATCHING_SERVICE_URL = process.env.MATCHING_SERVICE_URL || 'http://localhost:8001';
+const MATCHING_SERVICE_URL = process.env.MATCHING_SERVICE_URL || 'https://skillswap-matching-service.onrender.com';
 const COLD_START_TIMEOUT = 120000; // 2 minutes for ML model loading
 
 // Wake up the service (call this on server startup)
