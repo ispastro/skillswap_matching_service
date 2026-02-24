@@ -267,4 +267,6 @@ MIT
 
 ## 👤 Author
 
+**Haile** ([@ispastro](https://github.com/ispastro))
+
 Built with ❤️ for SkillSwap Platform
