@@ -254,16 +254,6 @@ curl -X POST http://localhost:8001/api/matches/user123?limit=5
 - **ORM**: SQLAlchemy 2.0 (async)
 - **Deployment**: Docker + Render
 
-## 📈 Roadmap
-
-- [ ] Add authentication (JWT)
-- [ ] Implement rate limiting
-- [ ] Add comprehensive tests
-- [ ] Optimize with pgvector similarity queries
-- [ ] Add monitoring (Prometheus)
-- [ ] Add error tracking (Sentry)
-- [ ] API versioning
-
 ## 📝 License
 
 MIT
