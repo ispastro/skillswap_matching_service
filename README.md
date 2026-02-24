@@ -1,6 +1,8 @@
 # 🎯 SkillSwap Matching Service
 
-AI-powered microservice for intelligent skill matching using semantic similarity and exact matching algorithms.
+**Specialized AI microservice** for intelligent skill matching using semantic similarity and exact matching algorithms.
+
+> **Note:** This is a standalone microservice designed to be called by the main SkillSwap Node.js/Express backend. It handles computationally intensive AI-powered matching operations.
 
 ## 🚀 Features
 
@@ -12,10 +14,34 @@ AI-powered microservice for intelligent skill matching using semantic similarity
 
 ## 🏗️ Architecture
 
+### Microservice Architecture
 ```
-FastAPI (Async) → PostgreSQL (pgvector) → Redis Cache (Upstash)
-                ↓
-        Sentence Transformers (AI Model)
+┌─────────────────────┐
+│  Node.js Backend    │  ← Main application (auth, CRUD, business logic)
+│  (Port 3000/4000)   │
+└──────────┬──────────┘
+           │ HTTP calls
+           ▼
+┌─────────────────────┐
+│  FastAPI Service    │  ← This microservice (AI matching)
+│  (Port 8001)        │
+└──────────┬──────────┘
+           │
+           ▼
+  PostgreSQL (Shared) + Redis Cache
+           │
+           ▼
+  Sentence Transformers (AI Model)
+```
+
+### Integration
+The Node.js backend calls this service via HTTP:
+```javascript
+// Example: Node.js calling this service
+const matches = await axios.post(
+  'http://matching-service:8001/api/matches/user123',
+  { limit: 10 }
+);
 ```
 
 ## 📋 Prerequisites
@@ -155,6 +181,36 @@ CREATE TABLE "SkillEmbedding" (
   embedding vector(384),
   ...
 );
+```
+
+## 🔗 Integration with Node.js Backend
+
+This service is designed to be called by your main Node.js/Express backend:
+
+### Node.js Example:
+```javascript
+const axios = require('axios');
+
+const MATCHING_SERVICE_URL = process.env.MATCHING_SERVICE_URL || 'http://localhost:8001';
+
+// Get matches for a user
+app.get('/api/users/:userId/matches', async (req, res) => {
+  try {
+    const response = await axios.post(
+      `${MATCHING_SERVICE_URL}/api/matches/${req.params.userId}`,
+      { params: { limit: req.query.limit || 10 } }
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error('Matching service error:', error);
+    res.status(503).json({ error: 'Matching service unavailable' });
+  }
+});
+```
+
+### Environment Variables (Node.js):
+```env
+MATCHING_SERVICE_URL=https://your-matching-service.onrender.com
 ```
 
 ## 🚀 Deployment
